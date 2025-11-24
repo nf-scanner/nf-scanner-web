@@ -32,7 +32,9 @@ ng serve -o
 
 A aplicação irá abrir automaticamente no navegador padrão, caso não abra, acesse `http://localhost:4200`. A aplicação será recarregada automaticamente quando alterações no código forem realizadas.
 
-## Cores do Tema
+## Design
+
+O design foi inspirado na interface do [WeTransfer](https://wetransfer.com/), uma aplicação de transferência de arquivos.
 
 A aplicação utiliza o seguinte esquema de cores:
 
