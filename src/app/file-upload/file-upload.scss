@@ -218,6 +218,8 @@
 
 .result-section:last-child {
   border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
 
 .result-section h3 {
@@ -302,4 +304,18 @@
 
 .result-content {
   padding: 24px;
+}
+
+.taxes-section {
+  border-top: 1px solid #eee;
+}
+
+.taxes-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  .result-item {
+    display: block;
+  }
 }

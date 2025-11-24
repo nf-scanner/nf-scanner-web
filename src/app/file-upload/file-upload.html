@@ -313,6 +313,42 @@
               <span>Valor ISS:</span>
               <span>R$ {{ nfseResponse()!.nfse.valores.valor_iss }}</span>
             </div>
+            <div class="result-item">
+              <span>Outras Retenções:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.outras_retencoes
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>Retenções Federais:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.retencoes_federais
+                }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="result-section taxes-section">
+        <h3>Tributos Federais</h3>
+        <div class="taxes-container">
+          <div class="result-item">
+            <span>PIS:</span>
+            <span>R$ {{ nfseResponse()!.nfse.tributos_federais.pis }}</span>
+          </div>
+          <div class="result-item">
+            <span>COFINS:</span>
+            <span>R$ {{ nfseResponse()!.nfse.tributos_federais.cofins
+              }}</span>
+          </div>
+          <div class="result-item">
+            <span>IR:</span>
+            <span>R$ {{ nfseResponse()!.nfse.tributos_federais.ir }}</span>
+          </div>
+          <div class="result-item">
+            <span>INSS:</span>
+            <span>R$ {{ nfseResponse()!.nfse.tributos_federais.inss }}</span>
+          </div>
+          <div class="result-item">
+            <span>CSLL:</span>
+            <span>R$ {{ nfseResponse()!.nfse.tributos_federais.csll }}</span>
           </div>
         </div>
       </div>
