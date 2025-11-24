@@ -4,7 +4,7 @@ Uma aplicação web para extração e processamento de dados de Notas Fiscais de
 
 ![front-page](front-page.png)
 
-![result-page](front-page-result.png)
+![result-page](front-page-results.png)
 
 
 ## Instalação
