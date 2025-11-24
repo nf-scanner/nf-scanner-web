@@ -1,0 +1,321 @@
+<div class="file-uploader-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>NF Scanner</h2>
+      <p>Faça o upload de uma NFSe para extrair os dados e detalhes</p>
+    </div>
+
+    <div class="card-body">
+      <div class="file-input-area">
+
+        <div *ngIf="!selectedFile()" class="drop-zone"
+          (click)="fileInput.click()">
+          <div class="file-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="12" y1="18" x2="12" y2="12"></line>
+              <line x1="9" y1="15" x2="15" y2="15"></line>
+            </svg>
+          </div>
+          <p>Clique para selecionar um arquivo (pdf, png, jpg, jpeg).</p>
+        </div>
+        <div *ngIf="selectedFile()" class="selected-file">
+          <div class="file-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path
+                d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+            </svg>
+          </div>
+          <div class="file-info">
+            <p class="filename">{{ selectedFile()!.name }}</p>
+            <p class="filesize">{{ (selectedFile()!.size / 1024).toFixed(2) }}
+              KB</p>
+          </div>
+          <button class="remove-button" (click)="selectedFile.set(null)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+              viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <input
+          #fileInput
+          type="file"
+          (change)="onFileSelected($event)"
+          style="display: none">
+      </div>
+
+      <form [formGroup]="uploadForm" class="options-form">
+        <div class="checkbox-container" [class.disabled]="isPdfFile()">
+          <input type="checkbox" id="aiExtraction"
+            formControlName="aiExtraction" *ngIf="!isPdfFile()">
+          <label for="aiExtraction">Extração com IA {{ isPdfFile() ?
+            '(Não disponível para arquivos PDF)' : '' }}</label>
+        </div>
+
+        <div class="checkbox-container">
+          <input type="checkbox" id="aiParse" formControlName="aiParse">
+          <label for="aiParse">Parse com IA</label>
+        </div>
+      </form>
+
+      <div *ngIf="isUploading()" class="spinner-container">
+        <div class="spinner"></div>
+        <p>Processando...</p>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button *ngIf="!processingComplete()"
+        class="upload-button"
+        [disabled]="!selectedFile() || isUploading()"
+        (click)="uploadFile()">
+        Extrair NFSe
+      </button>
+
+      <button *ngIf="processingComplete()" class="process-new-document-button"
+        (click)="uploadFile()">
+        Processar Novo Documento
+      </button>
+    </div>
+
+    <div *ngIf="processingComplete() && nfseResponse()"
+      class="result-container">
+      <div class="result-section">
+        <h3>Informações Gerais da NFSe</h3>
+        <div class="result-item">
+          <span>Número NFSe:</span>
+          <span>{{ nfseResponse()!.nfse.numero_nfse }}</span>
+        </div>
+        <div class="result-item">
+          <span>Data Emissão:</span>
+          <span>{{ nfseResponse()!.nfse.data_hora_emissao |
+            date:'dd/MM/yyyy HH:mm' }}</span>
+        </div>
+        <div class="result-item">
+          <span>Competência:</span>
+          <span>{{ nfseResponse()!.nfse.competencia }}</span>
+        </div>
+        <div class="result-item">
+          <span>Código Verificação:</span>
+          <span>{{ nfseResponse()!.nfse.codigo_verificacao }}</span>
+        </div>
+        <div class="result-item">
+          <span>Número RPS:</span>
+          <span>{{ nfseResponse()!.nfse.numero_rps }}</span>
+        </div>
+        <div class="result-item">
+          <span>Local Prestação:</span>
+          <span>{{ nfseResponse()!.nfse.local_prestacao }}</span>
+        </div>
+        <div class="result-item">
+          <span>Origem:</span>
+          <span>{{ nfseResponse()!.nfse.origem }}</span>
+        </div>
+        <div class="result-item">
+          <span>Órgão:</span>
+          <span>{{ nfseResponse()!.nfse.orgao }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div *ngIf="processingComplete() && nfseResponse()" class="result-container">
+    <div class="result-header">
+      <h2>Detalhes da NFSe</h2>
+    </div>
+    <div class="result-section">
+      <div class="columns-container">
+        <!--  Coluna da esquerda -->
+        <div class="column">
+          <!-- Prestador -->
+          <div class="result-section">
+            <h3>Prestador</h3>
+            <div class="result-item">
+              <span>Razão Social:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.razao_social }}</span>
+            </div>
+            <div class="result-item">
+              <span>CNPJ:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.cnpj }}</span>
+            </div>
+            <div class="result-item">
+              <span>Inscrição Municipal:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.inscricao_municipal
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>Inscrição Estadual:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.inscricao_estadual ||
+                'N/A' }}</span>
+            </div>
+            <div class="result-item">
+              <span>Nome Fantasia:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.nome_fantasia || 'N/A'
+                }}</span>
+            </div>
+          </div>
+
+          <!-- Prestador Endereço -->
+          <div class="result-section">
+            <h3>Endereço do Prestador</h3>
+            <div class="result-item">
+              <span>Logradouro:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.endereco.logradouro
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>Número:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.endereco.numero }}</span>
+            </div>
+            <div class="result-item">
+              <span>Bairro:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.endereco.bairro }}</span>
+            </div>
+            <div class="result-item">
+              <span>CEP:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.endereco.cep }}</span>
+            </div>
+            <div class="result-item">
+              <span>Município:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.endereco.municipio
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>UF:</span>
+              <span>{{ nfseResponse()!.nfse.prestador.endereco.uf }}</span>
+            </div>
+          </div>
+
+          <!-- Serviço -->
+          <div class="result-section">
+            <h3>Serviço</h3>
+            <div class="result-item">
+              <span>Descrição:</span>
+              <span>{{ nfseResponse()!.nfse.servico.descricao }}</span>
+            </div>
+            <div class="result-item">
+              <span>Código:</span>
+              <span>{{ nfseResponse()!.nfse.servico.codigo_servico }}</span>
+            </div>
+            <div class="result-item">
+              <span>Atividade:</span>
+              <span>{{ nfseResponse()!.nfse.servico.atividade_descricao
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>CNAE:</span>
+              <span>{{ nfseResponse()!.nfse.servico.cnae }}</span>
+            </div>
+            <div class="result-item">
+              <span>CNAE Descrição:</span>
+              <span>{{ nfseResponse()!.nfse.servico.cnae_descricao }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coluna da direita -->
+        <div class="column">
+          <!-- Tomador -->
+          <div class="result-section">
+            <h3>Tomador</h3>
+            <div class="result-item">
+              <span>Razão Social:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.razao_social }}</span>
+            </div>
+            <div class="result-item">
+              <span>CNPJ:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.cnpj }}</span>
+            </div>
+            <div class="result-item">
+              <span>Inscrição Municipal:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.inscricao_municipal
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>Inscrição Estadual:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.inscricao_estadual || 'N/A'
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>Nome Fantasia:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.nome_fantasia || 'N/A'
+                }}</span>
+            </div>
+          </div>
+
+          <!-- Tomador Endereço -->
+          <div class="result-section">
+            <h3>Endereço do Tomador</h3>
+            <div class="result-item">
+              <span>Logradouro:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.endereco.logradouro
+                }}</span>
+            </div>
+            <div class="result-item">
+              <span>Número:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.endereco.numero }}</span>
+            </div>
+            <div class="result-item">
+              <span>Bairro:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.endereco.bairro }}</span>
+            </div>
+            <div class="result-item">
+              <span>CEP:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.endereco.cep }}</span>
+            </div>
+            <div class="result-item">
+              <span>Município:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.endereco.municipio }}</span>
+            </div>
+            <div class="result-item">
+              <span>UF:</span>
+              <span>{{ nfseResponse()!.nfse.tomador.endereco.uf }}</span>
+            </div>
+          </div>
+
+          <!-- Valores -->
+          <div class="result-section">
+            <h3>Valores</h3>
+            <div class="result-item">
+              <span>Valor Serviços:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.valor_servicos }}</span>
+            </div>
+            <div class="result-item">
+              <span>Desconto:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.desconto }}</span>
+            </div>
+            <div class="result-item">
+              <span>Valor Líquido:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.valor_liquido }}</span>
+            </div>
+            <div class="result-item">
+              <span>Base de Cálculo:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.base_calculo }}</span>
+            </div>
+            <div class="result-item">
+              <span>Alíquota:</span>
+              <span>{{ Number(nfseResponse()!.nfse.valores.aliquota) * 100
+                }}%</span>
+            </div>
+            <div class="result-item">
+              <span>Valor ISS:</span>
+              <span>R$ {{ nfseResponse()!.nfse.valores.valor_iss }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
